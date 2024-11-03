@@ -1,10 +1,10 @@
 import os
 
-# Define o caminho da pasta onde os arquivos serão verificados
+# Define o caminho da pasta onde os arquivos serão deletados
 caminho_pasta = r"C:\Users\Joao\Ambiente de Trabalho\Python projets\boots\qr_imagem"
 
-# Define o tamanho limite em bytes (300 MB)
-tamanho_limite = 300 * 1024 * 1024  # 300 MB em bytes
+# Define o tamanho limite em bytes: 300 MB
+tamanho_limite = 300 * 1024 * 1024 
 
 # Itera sobre os arquivos na pasta
 for nome_arquivo in os.listdir(caminho_pasta):
