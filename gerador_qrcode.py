@@ -1,34 +1,46 @@
+from pathlib import Path
+
 import pyqrcode
-from PIL import Image
-import shutil
-import os
 
-# destino para guardar imagem
-destino_imagem_qr = r"C:\Users\Joaov\Ambiente de Trabalho\Python projets\auto_boots\gerador qrcode\qr_imagem"
+DESTINO_PADRAO = Path(__file__).resolve().parent / "qr_imagem"
+BASE_FILENAME = "QRCode"
 
-# Verifica se o diretório de destino existe caso contrário, cria o diretório
-os.makedirs(destino_imagem_qr, exist_ok=True)
 
-# Solicita o link de acesso ou chave pix para gerar o QR Code
-link = input("Entre com o link para criar o qrcode: ")
-qr_code = pyqrcode.create(link)
+def gerar_qrcode(texto_qrcode: str, destino: Path = DESTINO_PADRAO) -> Path:
+    """Gera um QR Code PNG e devolve o caminho completo da imagem."""
+    if not texto_qrcode:
+        raise ValueError("O texto para gerar o QR Code não pode ser vazio.")
 
-# Gera um nome de arquivo único para o QR Code
-base_filename = "QRCode"
-counter = 1
-filename = f"{base_filename}.png"
-while os.path.exists(os.path.join(destino_imagem_qr, filename)):
-    filename = f"{base_filename}{counter}.png"
-    counter += 1
+    destino.mkdir(parents=True, exist_ok=True)
 
-# Salva o QR Code com o nome de arquivo único
-qr_code.png(filename, scale=8)
+    contador = 0
+    while True:
+        sufixo = "" if contador == 0 else str(contador)
+        filename = f"{BASE_FILENAME}{sufixo}.png"
+        caminho_arquivo = destino / filename
+        if not caminho_arquivo.exists():
+            break
+        contador += 1
 
-# Move o arquivo para o diretório de destino
-shutil.move(filename, os.path.join(destino_imagem_qr, filename))
+    qr_code = pyqrcode.create(texto_qrcode)
+    qr_code.png(str(caminho_arquivo), scale=8)
 
-# Exibe o QR Code gerado
-Image.open(os.path.join(destino_imagem_qr, filename)).show()
+    return caminho_arquivo
 
-print(f"QR Code salvo como {filename}")
 
+def escolher_destino() -> Path:
+    destino_digitado = input(
+        "Pasta para salvar o QR Code (ENTER para usar ./qr_imagem): "
+    ).strip()
+    return Path(destino_digitado).expanduser() if destino_digitado else DESTINO_PADRAO
+
+
+def main() -> None:
+    link = input("Entre com o link/chave para criar o qrcode: ").strip()
+    destino = escolher_destino()
+    caminho = gerar_qrcode(link, destino=destino)
+    print(f"QR Code salvo em: {caminho}")
+
+
+if __name__ == "__main__":
+    main()
